@@ -22,15 +22,22 @@
 
 				<form role="form" action="/board/modify" method="post">
 
-					<input type='hidden' name='pageNum' value='<c:out value="${cri.pageNum }"/>'> <input type='hidden' name='amount' value='<c:out value="${cri.amount }"/>'> <input type='hidden' name='type' value='<c:out value="${cri.type }"/>'> <input type='hidden' name='keyword' value='<c:out value="${cri.keyword }"/>'>
+					<!-- 수정과 삭제 처리를 위해 추가  pageNum, amount-->
+					<input type='hidden' name='pageNum' value='<c:out value="${cri.pageNum }"/>'>
+					<input type='hidden' name='amount' value='<c:out value="${cri.amount }"/>'>
+					
+					<input type='hidden' name='type' value='<c:out value="${cri.type }"/>'>
+					<input type='hidden' name='keyword' value='<c:out value="${cri.keyword }"/>'>
 
 
 					<div class="form-group">
-						<label>Bno</label> <input class="form-control" name='bno' value='<c:out value="${board.bno }"/>' readonly="readonly">
+						<label>Bno</label>
+						<input class="form-control" name='bno' value='<c:out value="${board.bno }"/>' readonly="readonly">
 					</div>
 
 					<div class="form-group">
-						<label>Title</label> <input class="form-control" name='title' value='<c:out value="${board.title }"/>'>
+						<label>Title</label>
+						<input class="form-control" name='title' value='<c:out value="${board.title }"/>'>
 					</div>
 
 					<div class="form-group">
@@ -39,24 +46,24 @@
 					</div>
 
 					<div class="form-group">
-						<label>Writer</label> <input class="form-control" name='writer' value='<c:out value="${board.writer}"/>' readonly="readonly">
+						<label>Writer</label>
+						<input class="form-control" name='writer' value='<c:out value="${board.writer}"/>' readonly="readonly">
 					</div>
 
 					<div class="form-group">
-						<label>RegDate</label> <input class="form-control" name='regDate' value='<fmt:formatDate pattern = "yyyy/MM/dd" value = "${board.regdate}" />' readonly="readonly">
+						<label>RegDate</label>
+						<input class="form-control" name='regDate' value='<fmt:formatDate pattern = "yyyy/MM/dd" value = "${board.regdate}" />' readonly="readonly">
 					</div>
 
 					<div class="form-group">
-						<label>Update Date</label> <input class="form-control" name='updateDate' value='<fmt:formatDate pattern = "yyyy/MM/dd" value = "${board.updateDate}" />' readonly="readonly">
+						<label>Update Date</label>
+						<input class="form-control" name='updateDate' value='<fmt:formatDate pattern = "yyyy/MM/dd" value = "${board.updateDate}" />' readonly="readonly">
 					</div>
-
-
 
 					<button type="submit" data-oper='modify' class="btn btn-default">Modify</button>
 					<button type="submit" data-oper='remove' class="btn btn-danger">Remove</button>
 					<button type="submit" data-oper='list' class="btn btn-info">List</button>
 				</form>
-
 
 			</div>
 			<!--  end panel-body -->
@@ -67,6 +74,9 @@
 	<!-- end panel -->
 </div>
 <!-- /.row -->
+
+
+
 
 <script type="text/javascript">
 
@@ -87,6 +97,7 @@
 			console.log(operation);
 
 			if (operation === 'remove') {
+				
 				//action이라는 속성에 "board/remove" 값 추가
 				formObj.attr("action", "/board/remove");
 
@@ -95,6 +106,7 @@
 				formObj.attr("action", "/board/list").attr("method", "get");
 
 				//$("태그[속성명=속성값]")
+				//form 태그에서 필요한 부분만 잠시 복사해둔다. 그리고 form 태그 안의 내용은 지워버린다. 
 				var pageNumTag = $("input[name='pageNum']").clone();
 				var amountTag = $("input[name='amount']").clone();
 				var keywordTag = $("input[name='keyword']").clone();
