@@ -31,6 +31,7 @@ public class BoardController {
 	 * service.getList()); }
 	 */
 
+	
 	@GetMapping("/list")
 	public void list(Criteria cri, Model model) {
 		log.info("list:" + cri);
