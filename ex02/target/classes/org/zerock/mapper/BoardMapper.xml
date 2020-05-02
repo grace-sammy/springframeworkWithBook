@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--mapper의 namesapce속성값을 mapper(DAO 비슷) interface값과 동일하게 이름을 준다. -->
+<mapper namespace="org.zerock.mapper.BoardMapper">
+
+
+	<!-- select 태그 안의 id속성 값은 메서드의 이름과 일치하게 만든다. -->
+	<select id="getList" resultType="org.zerock.domain.BoardVO">
+	<![CDATA[
+		select * from tbl_board where bno > 0 
+		]]>
+	</select>
+	<!-- CDATA는 조건문(ex. 부등호 같은 기호)을 사용하기 위해 사용 -->
+
+
+	<select id="read" resultType="org.zerock.domain.BoardVO">
+		select * from tbl_board where bno = #{bno}
+	</select>
+
+
+
+
+	<insert id="insert">
+		insert into tbl_board (bno, title, content, writer)
+		values (seq_board.nextval, #{title}, #{content}, #{writer})
+	</insert>
+
+
+
+
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+			select seq_board.nextval from dual
+		</selectKey>
+
+		insert into tbl_board (bno, title, content, writer)
+		values (#{bno}, #{title}, #{content}, #{writer})
+	</insert>
+
+
+
+	<delete id="delete">
+		delete from tbl_board where bno=#{bno}
+	</delete>
+
+
+
+	<update id="update">
+		update tbl_board
+		set title=#{title},
+		content =
+		#{content},
+		writer = #{writer},
+		updateDate = sysdate
+		where bno = #{bno}
+	</update>
+
+
+
+	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+		SELECT
+		bno, title, content, writer, regdate, updatedate
+		FROM
+		(
+			SELECT /* +INDEX_DESC(tbl_board pk_board) */
+			rownum rn, bno, title, content, writer, regdate, updatedate
+			FROM
+			tbl_board
+			WHERE rownum<= #{pageNum} * #{amount}
+		)
+		WHERE rn > ( #{pageNum} - 1 )* #{amount}
+		]]>
+	</select>
+</mapper>
