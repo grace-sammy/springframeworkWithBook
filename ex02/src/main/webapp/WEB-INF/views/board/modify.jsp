@@ -19,13 +19,13 @@
 			<div class="panel-heading">Board Modify</div>
 			<!-- /.panel-heading -->
 			<div class="panel-body">
-
+			
+				<!-- Post방식 ->> PostMapping -->
 				<form role="form" action="/board/modify" method="post">
 
 					<!-- 수정과 삭제 처리를 위해 추가  pageNum, amount-->
 					<input type='hidden' name='pageNum' value='<c:out value="${cri.pageNum }"/>'>
 					<input type='hidden' name='amount' value='<c:out value="${cri.amount }"/>'>
-					
 					<input type='hidden' name='type' value='<c:out value="${cri.type }"/>'>
 					<input type='hidden' name='keyword' value='<c:out value="${cri.keyword }"/>'>
 
@@ -102,7 +102,7 @@
 				formObj.attr("action", "/board/remove");
 
 			} else if (operation === 'list') {
-				//move to list
+				
 				formObj.attr("action", "/board/list").attr("method", "get");
 
 				//$("태그[속성명=속성값]")

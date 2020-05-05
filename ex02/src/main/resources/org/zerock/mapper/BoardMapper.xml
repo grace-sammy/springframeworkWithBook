@@ -21,19 +21,8 @@
 	</select>
 
 
-
-	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
-  <![CDATA[
-  select 
-    bno, title, content, writer, regdate, updatedate
-  from 
-      (
-      select /*+INDEX_DESC(tbl_board pk_board) */
-        rownum rn, bno, title, content, writer, regdate, updatedate 
-      from 
-        tbl_board
-      where 
-  ]]>
+	<!-- MyBatis는 <sql>이라는 태그를 이용해서 SQL의 일부를 별도로 보관하고 필요한 경우에 include시키는 형태로 사용 가능 -->
+	<sql id="criteria">
 		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
 			<foreach item='type' collection="typeArr">
 				<trim prefix="OR">
@@ -51,20 +40,53 @@
 				</trim>
 			</foreach>
 		</trim>
-      
-  <![CDATA[    
-      rownum <= #{pageNum} * #{amount}
-      )
-  where rn > (#{pageNum} -1) * #{amount}   
-  ]]>
+	</sql>
+
+	<!-- 
+	1. prefix 처리 후 엘리먼트의 내용이 있으면 가장 앞에 붙여준다.
+	2. prefixOverrides 처리 후 엘리먼트 내용 중 가장 앞에 해당 문자들이 있다면 자동으로 지워준다.
+	3. suffix 처리 후 엘리먼트 내에 내용이 있으면 가장 뒤에 붙여준다.
+	4. suffixOverrides 처리 후 엘리먼트 내용 중 가장 뒤에 해당 문자들이 있다면 자동으로 지워준다.
+ 	-->
+
+
+	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
+	  <![CDATA[
+	  select 
+	    bno, title, content, writer, regdate, updatedate
+	  from 
+	      (
+	      select /*+INDEX_DESC(tbl_board pk_board) */
+	        rownum rn, bno, title, content, writer, regdate, updatedate 
+	      from 
+	        tbl_board
+	      where 
+	  ]]>
+
+		<include refid="criteria"></include>
+		
+	  <![CDATA[    
+	      rownum <= #{pageNum} * #{amount}
+	      )
+	  where rn > (#{pageNum} -1) * #{amount}   
+	  ]]>
 	</select>
+
+
 
 
 
 
 	<select id="getTotalCount" resultType="int">
-		select count(*) from tbl_board where bno > 0
+		select count(*) from tbl_board where
+
+		<include refid="criteria"></include>
+
+		bno > 0
 	</select>
+
+
+
 
 
 

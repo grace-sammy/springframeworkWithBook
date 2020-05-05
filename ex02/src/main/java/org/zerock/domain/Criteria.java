@@ -1,5 +1,7 @@
 package org.zerock.domain;
 
+import org.springframework.web.util.UriComponentsBuilder;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,6 +31,19 @@ public class Criteria {
 	public String[] getTypeArr() {
 
 		return type == null ? new String[] {} : type.split("");
+	}
+	
+	
+	//UriComponentsBuilder로 생성된 URL은 화면에서도 유용하게 사용될 수 있는데, 주로 javaScript를 사용할 수 없는 상황에서
+	//링크를 처리해야하는 상황에서 사용됨, 또한 한글 처리에 신경쓰지 않아도 된다.
+	public String getListLink() {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromPath("")
+				.queryParam("pageNum", this.pageNum)
+				.queryParam("amount", this.amount)
+				.queryParam("type", this.getType())
+				.queryParam("keyword", this.getKeyword());
+		
+		return builder.toUriString();
 	}
 
 }

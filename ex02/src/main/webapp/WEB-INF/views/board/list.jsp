@@ -6,14 +6,16 @@
 
 
 <script type="text/javascript">
-
-$(document).ready(function() {
+	$(document).ready(
+	
+	function() {
 
 	var result = '<c:out value="${result}"/>';
+	
 	checkModal(result);
+	
 	history.replaceState({}, null, null);
 
-	
 	function checkModal(result) {
 		if (result === '' || history.state) {
 			return;
@@ -32,55 +34,64 @@ $(document).ready(function() {
 
 	
 	var actionForm = $("#actionForm");
-	$(".paginate_button a").on("click",	function(e) {
-			//<a> 태그를 클릭해도 페이지 이동이 없도록 처리
-			e.preventDefault();
-			console.log('click');
+	$(".paginate_button a").on(
+			"click",
+			function(e) {
+				//<a> 태그를 클릭해도 페이지 이동이 없도록 처리
+				e.preventDefault();
+				console.log('click');
 
-			//<form> 태그 내 pageNum 값은 href 속성값으로 변경 -> 
-			//이 처리를 하면 화면에서 페이지 번호를 클릭했을 때 <form>태그 내의 페이지 번호가 바뀌는 것을 확인할 수 있다.
-			actionForm.find("input[name='pageNum']").val($(this).attr("href"));
-			actionForm.submit();
+				//<form> 태그 내 pageNum 값은 href 속성값으로 변경 -> 
+				//이 처리를 하면 화면에서 페이지 번호를 클릭했을 때 <form>태그 내의 페이지 번호가 바뀌는 것을 확인할 수 있다.
+				actionForm.find("input[name='pageNum']")
+						.val($(this).attr("href"));
+				actionForm.submit();
 			});
 	
+
 	//list.jsp 게시물 조회를 위한 이벤트 처리 추가 
-	$(".move").on("click", function(e) {
-		
+	$(".move").on("click",
+			
+		function(e) {
+
 			e.preventDefault();
 			//게시물의 제목을 클릭하면 form 태그 에 추가로 bno값을 전송하기 위해 input태그를 만들어 추가하고
 			//form태그의 action은 /board/get으로 변경한다.
 			actionForm.append("<input type='hidden' name='bno' value='"	+ $(this).attr("href")+ "'>");
-			
+
 			//attr()을 통해서는 element가 가지는 속성값이나 정보를 조회하거나 세팅
 			actionForm.attr("action", "/board/get");
-			
+
 			actionForm.submit();
-			});
+		});
 
 	
 	var searchForm = $("#searchForm");
+	
+	$("#searchForm button").on("click",
+			
+			function(e) {
 
-	$("#searchForm button").on("click",	function(e) {
-
-				if (!searchForm.find("option:selected").val()) 
-				{
+				if (!searchForm.find("option:selected").val()) {
 					alert("검색종류를 선택하세요");
 					return false;
 				}
 
-				if (!searchForm.find("input[name='keyword']").val()) 
-				{
+				if (!searchForm.find("input[name='keyword']").val()) {
 					alert("키워드를 입력하세요");
 					return false;
 				}
 
 				searchForm.find("input[name='pageNum']").val("1");
-
+				
+				//브라우저에서 검색 버튼을 클릭하면 form 태그의 전송은 막고, 페이지 번호는
+				//1이 되도록 처리한다.
 				e.preventDefault();
-				
+
 				searchForm.submit();
-				
-				});
+
+			});
+	
 });
 </script>
 
@@ -117,10 +128,9 @@ $(document).ready(function() {
 								<!-- 만약 새창을 통해 보고싶다면 target='_blank' 를 추가하면 된다-->
 								<%-- a 태그로 링크를 생성하여 이동하는 방법
 								<a href='/board/get?bno=<c:out value="${board.bno}"/>'> --%>
-								
+
 								<!-- 이벤트 처리를 수월하게 하기 위해서 <a>태그에 class속성을 부여  -->
-								<a class='move' href='<c:out value="${board.bno}"/>'>
-								<c:out value="${board.title}" />
+								<a class='move' href='<c:out value="${board.bno}"/>'> <c:out value="${board.title}" />
 								</a>
 							</td>
 
@@ -137,6 +147,28 @@ $(document).ready(function() {
 					</c:forEach>
 				</table>
 				<!-- /.table-responsive -->
+
+
+				<div class='row'>
+					<div class="col-lg-12">
+						<form id='searchForm' action="/board/list" method='get'>
+							<select name='type'>
+								<option value="" <c:out value="${pageMaker.cri.type == null? 'selected' : ''}"/>>---</option>
+								<option value="T" <c:out value="${pageMaker.cri.type eq 'T'? 'selected' : '' }"/>>제목</option>
+								<option value="C" <c:out value="${pageMaker.cri.type eq 'C'? 'selected' : '' }"/>>내용</option>
+								<option value="W" <c:out value="${pageMaker.cri.type eq 'W'? 'selected' : '' }"/>>작성자</option>
+								<option value="TC" <c:out value="${pageMaker.cri.type eq 'TC'? 'selected' : '' }"/>>제목 or 내용</option>
+								<option value="TW" <c:out value="${pageMaker.cri.type eq 'TW'? 'selected' : '' }"/>>제목 or 작성자</option>
+								<option value="TWC" <c:out value="${pageMaker.cri.type eq 'TWC'? 'selected' : '' }"/>>제목 or 내용 or 작성자</option>
+							</select>
+							
+							<input type='text' name='keyword' value='<c:out value="${pageMaker.cri.keyword}"/>'></input>				
+							<input type='hidden' name='pageNum' value='${pageMaker.cri.pageNum}'></input>				
+							<input type='hidden' name='amount' value='${pageMaker.cri.amount}'></input>				
+							<button class='btn btn-default'>Search</button>
+						</form>
+					</div>
+				</div>
 
 				<!-- 페이징처리 -->
 				<div class='pull-right'>
@@ -156,7 +188,8 @@ $(document).ready(function() {
 				</div>
 				<!-- end of pull-right, end pagination -->
 			</div>
-
+			
+			<!-- 페이지 번호를 클릭해서 이동할 때에도 검색 조건과 키워드는 같이 전달되어야한다 -->
 			<form id='actionForm' action="/board/list" method='get'>
 				<input type='hidden' name='pageNum' value='${pageMaker.cri.pageNum}'>
 				<input type='hidden' name='amount' value='${pageMaker.cri.amount}'>

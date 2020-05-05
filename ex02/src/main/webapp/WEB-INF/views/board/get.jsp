@@ -46,17 +46,18 @@
 				<button data-oper='modify' class="btn btn-default">Modify</button>
 				<button data-oper='list' class="btn btn-info">List</button>
 
+
 				<!-- 브라우저에서는 form 태그의 내용은 보이지 않고 버튼만이 보이게 된다. 사용자가 버튼을 클릭하면 openForm이라는 id를 가진 <form>태그를 전송해야
 				하므로 추가적인 JavaScript 처리가 필요 -->
+				
 				<form id='operForm' action="/board/modify" method="get">
-
 					<input type='hidden' id='bno' name='bno' value='<c:out value="${board.bno}"/>'>
-
 					<!--pageNum, amount 값을 같이 전달해줄 경우, 글을 읽은 후 리스트로 돌아갈때 보던 리스트로 돌아갈 수 있다. -->
 					<!--  http://localhost:8080/board/list?pageNum=5&amount=10  이렇게 전달이 된다.-->
 					<input type='hidden' name='pageNum' value='<c:out value="${cri.pageNum}"/>'>
 					<input type='hidden' name='amount' value='<c:out value="${cri.amount}"/>'>
-
+					<input type='hidden' name='keyword' value='<c:out value="${cri.keyword}"/>'>
+					<input type='hidden' name='type' value='<c:out value="${cri.type}"/>'>
 				</form>
 			</div>
 			<!-- end panel-body -->
