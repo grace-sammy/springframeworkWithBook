@@ -89,7 +89,6 @@ public class ReplyMapperTests {
 
 		Criteria cri = new Criteria();
 
-		// 3145745L 
 		List<ReplyVO> replies = mapper.getListWithPaging(cri, bnoArr[0]);
 
 		replies.forEach(reply -> log.info(reply));
@@ -101,8 +100,7 @@ public class ReplyMapperTests {
 
 		Criteria cri = new Criteria(2, 10);
 
-		// 3145745L 
-		List<ReplyVO> replies = mapper.getListWithPaging(cri, 3145745L);
+		List<ReplyVO> replies = mapper.getListWithPaging(cri, 30L);
 
 		replies.forEach(reply -> log.info(reply));
 

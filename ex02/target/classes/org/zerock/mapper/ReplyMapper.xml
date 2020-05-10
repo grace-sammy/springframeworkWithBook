@@ -19,7 +19,7 @@
 
 	<select id="read" resultType="org.zerock.domain.ReplyVO">
 
-		select * from tbl_reply where rno =	#{rno}
+		select * from tbl_reply where rno = #{rno}
 
 	</select>
 
@@ -47,12 +47,37 @@
 	<!-- 특정 게시물의 댓글을 가져오기 -->
 	<select id="getListWithPaging" resultType="org.zerock.domain.ReplyVO">
 
-		select rno, bno, reply, replyer, replyDate, updateDate
+	  <![CDATA[
+		 select  rno, bno, reply, replyer, replydate, updatedate
+		 from 
+		   (
+		    select /*+INDEX(tbl_reply idx_reply) */ 
+		      rownum rn,  rno, bno, reply, replyer, replyDate, updatedate
+		    from tbl_reply
+		    where bno =  #{bno}
+		    and rno > 0
+		    and rownum <= #{cri.pageNum} * #{cri.amount}
+		   ) where rn > (#{cri.pageNum} -1) * #{cri.amount}
+	]]>
+		
+		
+		<!-- select rno, bno, reply, replyer, replyDate, updateDate
 		from tbl_reply
 		where bno=#{bno}
 		order by rno asc
-
-		<!-- 여기서 #{bno}는 @Param("bno")와 매칭되어 사용된다. -->
+		여기서 #{bno}는 @Param("bno")와 매칭되어 사용된다. -->
+	</select>
+	
+	
+	
+	
+	<!-- 해당 게시물의 전체 댓글의 숫자를 파악 -->
+	<select id="getCountByBno" resultType="int">
+	
+		<![CDATA[
+		select count(rno) from tbl_reply where bno = #{bno}
+		]]>
+		
 	</select>
 
 

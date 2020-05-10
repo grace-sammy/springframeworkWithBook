@@ -71,15 +71,18 @@
 <div class='row'>
 	<div class="col-lg-12">
 		<div class="panel panel-default">
-
+		<!-- <div class="panel-heading"><i class="fa fa-comments fa-fw"></i> Reply</div> -->
+		
 			<div class="panel-heading">
 				<i class="fa fa-comments fa-fw"></i> Reply
 				<button id='addReplyBtn' class='btn btn-primary btn-xs pull-right'>New Reply</button>
 			</div>
+			
 			<div class="panel-body">
 				<ul class="chat">
 				</ul>
 			</div>
+			<!-- panel-footer에 댓글 페이지 번호를 출력 -->
 			<div class="panel-footer"></div>
 		</div>
 	</div>
@@ -133,10 +136,14 @@ $(document).ready(function () {
 	  
 	    showList(1);
 	    
+	    //파라미터로 전달되는 page 변수를 이용해서 원하는 댓글 페이지를 가져오게 된다. 이때 만일 page 번호가 -1로 전달되면,
+	    //마지막 페이지를 찾아서 다시 호출하게 된다. 사용자가 새로운 댓글을 추가하면 showList(-1);을 호출하여 우선 전체 댓글의 숫자를 파악한다
+	    //이 후에 다시 마지막 페이지를 호출해서 이동시키는 방식으로 동작한다.
+	    //이러한 방식은 여러 번 서버를 호출해야하는 단점이 있으나 ...
 	function showList(page){
 		 console.log("show list " + page);
 	    
-	    replyService.getList({bno:bnoValue,page: page|| 1 }, function(replyCnt, list) {
+	    replyService.getList({bno:bnoValue, page: page|| 1 }, function(replyCnt, list) {
 	      
 	    console.log("replyCnt: "+ replyCnt );
 	    console.log("list: " + list);
@@ -173,6 +180,7 @@ $(document).ready(function () {
 	 }//end showList
 	 
 	    
+	 //댓글 페이지 번호를 출력하는 로직
 	    var pageNum = 1;
 	    var replyPageFooter = $(".panel-footer");
 	    
@@ -213,9 +221,12 @@ $(document).ready(function () {
 	    }
 	     
 	    
+	  /*   페이지의 번호를 클릭했을 때 새로운 댓글을 가져오도록 */
+	    //댓글의 페이지 번호는 <a>태그 내에 존재하므로 이벤트 처리에서는 <a>태그의 기본 동작을 제한(preventDefault)
 	    replyPageFooter.on("click","li a", function(e){
 	       e.preventDefault();
 	       console.log("page click");
+	       
 	       
 	       var targetPageNum = $(this).attr("href");
 	       console.log("targetPageNum: " + targetPageNum);
@@ -277,7 +288,9 @@ $(document).ready(function () {
 	    });
 	    
 
+	    
 	    modalRegisterBtn.on("click", function(e){
+	        
 	      var reply = {
 	            reply: modalInputReply.val(),
 	            replyer:modalInputReplyer.val(),

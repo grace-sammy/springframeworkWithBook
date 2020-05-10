@@ -23,5 +23,6 @@ public interface ReplyMapper {
 	//xml로 처리할 때는 지정된 cri와 bno를 모두 사용할 수 있다.
 	public List<ReplyVO> getListWithPaging(@Param("cri") Criteria cri, @Param("bno") Long bno);
 	
+	public int getCountByBno(Long bno);
 
 }
