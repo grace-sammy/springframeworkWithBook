@@ -131,6 +131,7 @@
 
 								<!-- 이벤트 처리를 수월하게 하기 위해서 <a>태그에 class속성을 부여  -->
 								<a class='move' href='<c:out value="${board.bno}"/>'> <c:out value="${board.title}" />
+								<b>[  <c:out value="${board.replyCnt}" />  ]</b>
 								</a>
 							</td>
 

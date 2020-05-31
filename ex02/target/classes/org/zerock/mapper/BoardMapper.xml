@@ -2,26 +2,8 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<!--mapper의 namesapce속성값을 mapper(DAO 비슷) interface값과 동일하게 이름을 준다. -->
 <mapper namespace="org.zerock.mapper.BoardMapper">
 
-
-	<!-- select 태그 안의 id속성 값은 메서드의 이름과 일치하게 만든다. -->
-	<select id="getList" resultType="org.zerock.domain.BoardVO">
-	<![CDATA[
-		select * from tbl_board where bno > 0 
-		]]>
-	</select>
-	<!-- CDATA는 조건문(ex. 부등호 같은 기호)을 사용하기 위해 사용 -->
-
-
-	<select id="read" resultType="org.zerock.domain.BoardVO">
-		select * from tbl_board where bno = #{bno}
-	</select>
-
-
-	<!-- MyBatis는 <sql>이라는 태그를 이용해서 SQL의 일부를 별도로 보관하고 필요한 경우에 include시키는 형태로 사용 가능 -->
 	<sql id="criteria">
 		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
 			<foreach item='type' collection="typeArr">
@@ -42,85 +24,83 @@
 		</trim>
 	</sql>
 
-	<!-- 
-	1. prefix 처리 후 엘리먼트의 내용이 있으면 가장 앞에 붙여준다.
-	2. prefixOverrides 처리 후 엘리먼트 내용 중 가장 앞에 해당 문자들이 있다면 자동으로 지워준다.
-	3. suffix 처리 후 엘리먼트 내에 내용이 있으면 가장 뒤에 붙여준다.
-	4. suffixOverrides 처리 후 엘리먼트 내용 중 가장 뒤에 해당 문자들이 있다면 자동으로 지워준다.
- 	-->
+	<select id="getList" resultType="org.zerock.domain.BoardVO">
+	<![CDATA[
+		select * from tbl_board where
+		bno > 0 and rownum <= 100
+		]]>
+	</select>
 
+	<insert id="insert">
+		insert into tbl_board (bno,title,content,writer)
+		values (seq_board.nextval, #{title}, #{content}, #{writer})
+	</insert>
 
-	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
-	  <![CDATA[
-	  select 
-	    bno, title, content, writer, regdate, updatedate
-	  from 
-	      (
-	      select /*+INDEX_DESC(tbl_board pk_board) */
-	        rownum rn, bno, title, content, writer, regdate, updatedate 
-	      from 
-	        tbl_board
-	      where 
-	  ]]>
+	<insert id="insertSelectKey">
 
-		<include refid="criteria"></include>
-		
-	  <![CDATA[    
-	      rownum <= #{pageNum} * #{amount}
-	      )
-	  where rn > (#{pageNum} -1) * #{amount}   
-	  ]]>
+		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+			select seq_board.nextval from dual
+		</selectKey>
+
+		insert into tbl_board (bno,title,content, writer)
+		values (#{bno},
+		#{title}, #{content}, #{writer})
+	</insert>
+
+	<select id="read" resultType="org.zerock.domain.BoardVO">
+		select * from tbl_board where bno =
+		#{bno}
 	</select>
 
 
+	<delete id="delete">
+		delete tbl_board where bno = #{bno}
+	</delete>
 
+	<update id="update">
+		update tbl_board
+		set title= #{title},
+		content=#{content},
+		writer = #{writer},
+		updateDate = sysdate
+		where bno = #{bno}
+	</update>
+
+	<!-- <select id="getListWithPaging" resultType="org.zerock.domain.BoardVO"> <![CDATA[ select bno, title, content, writer, regdate, updatedate from ( select /*+INDEX_DESC(tbl_board pk_board) */ rownum rn, bno, title, content, writer, regdate, updatedate from tbl_board where rownum <= #{pageNum} * #{amount} ) where rn > (#{pageNum} -1) * #{amount} ]]> </select> -->
+
+
+	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
+  <![CDATA[
+  select 
+    bno, title, content, writer, regdate, updatedate, replycnt
+  from 
+      (
+      select /*+INDEX_DESC(tbl_board pk_board) */
+        rownum rn, bno, title, content, writer, regdate, updatedate, replycnt 
+      from 
+        tbl_board
+      where 
+  ]]>
+
+		<include refid="criteria"></include> 
+      
+  <![CDATA[    
+      rownum <= #{pageNum} * #{amount}
+      )
+  where rn > (#{pageNum} -1) * #{amount}   
+  ]]>
+	</select>
 
 
 
 	<select id="getTotalCount" resultType="int">
 		select count(*) from tbl_board where
-
 		<include refid="criteria"></include>
-
 		bno > 0
 	</select>
 
-
-
-
-	<insert id="insert">
-		insert into tbl_board (bno, title, content, writer)
-		values (seq_board.nextval, #{title}, #{content}, #{writer})
-	</insert>
-
-
-
-
-	<insert id="insertSelectKey">
-		<selectKey keyProperty="bno" order="BEFORE" resultType="long">
-			select seq_board.nextval from dual
-		</selectKey>
-
-		insert into tbl_board (bno, title, content, writer)
-		values (#{bno}, #{title}, #{content}, #{writer})
-	</insert>
-
-
-
-	<delete id="delete">
-		delete from tbl_board where bno=#{bno}
-	</delete>
-
-
-
-	<update id="update">
-		update tbl_board
-		set title=#{title},
-		content =
-		#{content},
-		writer = #{writer},
-		updateDate = sysdate
-		where bno = #{bno}
+	<update id="updateReplyCnt">
+		update tbl_board set replycnt = replycnt + #{amount} where bno = #{bno}
 	</update>
 
 </mapper>
