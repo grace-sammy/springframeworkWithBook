@@ -119,6 +119,7 @@
 						</tr>
 					</thead>
 
+
 					<c:forEach items="${list}" var="board">
 						<tr>
 							<td>
