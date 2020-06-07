@@ -1,5 +1,10 @@
 package org.zerock.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +12,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.zerock.domain.BoardAttachVO;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.domain.PageDTO;
@@ -48,6 +55,11 @@ public class BoardController {
 	@PostMapping("/register")
 	public String register(BoardVO board, RedirectAttributes rttr) {
 		log.info("register: " + board);
+
+		if (board.getAttachList() != null) {
+			board.getAttachList().forEach(attach -> log.info(attach));
+		}
+
 		service.register(board);
 		rttr.addFlashAttribute("result", board.getBno());
 		// redirect: 접두어를 사용하면 스프링 MVC가 내부적으로 response.sendRedirect()를 처리
@@ -69,22 +81,21 @@ public class BoardController {
 		log.info("modify: " + board);
 
 		if (service.modify(board)) {
-			//addFlashAttribute는 일회성 
+			// addFlashAttribute는 일회성
 			rttr.addFlashAttribute("result", "success");
 		}
 
-		/* getListLink() 사용함으로써 밑에 것들 생략 가능
-		 * rttr.addAttribute("pageNum", cri.getPageNum());
-		 * rttr.addAttribute("amount", cri.getAmount()); 
-		 * rttr.addAttribute("type", cri.getType());
-		 * rttr.addAttribute("keyword", cri.getKeyword());
+		/*
+		 * getListLink() 사용함으로써 밑에 것들 생략 가능 rttr.addAttribute("pageNum",
+		 * cri.getPageNum()); rttr.addAttribute("amount", cri.getAmount());
+		 * rttr.addAttribute("type", cri.getType()); rttr.addAttribute("keyword",
+		 * cri.getKeyword());
 		 * 
-		 * //redirect는 get방식으로 이루어짐
-		 * return "redirect:/board/list";
+		 * //redirect는 get방식으로 이루어짐 return "redirect:/board/list";
 		 */
-		
+
 		return "redirect:/board/list" + cri.getListLink();
-		
+
 	}
 
 	@PostMapping("/remove")
@@ -95,18 +106,23 @@ public class BoardController {
 			rttr.addFlashAttribute("result", "success");
 		}
 
-		/* getListLink() 사용함으로써 밑에 것들 생략 가능
-		 * rttr.addAttribute("pageNum", cri.getPageNum()); 
-		 * rttr.addAttribute("amount", cri.getAmount()); 
-		 * rttr.addAttribute("type", cri.getType());
-		 * rttr.addAttribute("keyword", cri.getKeyword());
-		 * return "redirect:/board/list"; */
-		
-		return "redirect:/board/list"+ cri.getListLink();
+		/*
+		 * getListLink() 사용함으로써 밑에 것들 생략 가능 rttr.addAttribute("pageNum",
+		 * cri.getPageNum()); rttr.addAttribute("amount", cri.getAmount());
+		 * rttr.addAttribute("type", cri.getType()); rttr.addAttribute("keyword",
+		 * cri.getKeyword()); return "redirect:/board/list";
+		 */
+
+		return "redirect:/board/list" + cri.getListLink();
 	}
 
-	@GetMapping("/register")
-	public void register() {
+	@GetMapping(value = "/getAttachList", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody /* BoardController는 @RestController로 작성되지 않았기 때문에 직접  @ResponseBody를 적용해서 JSON 데이터를 반환하도록 처리*/
+	public ResponseEntity<List<BoardAttachVO>> getAttachList(Long bno) {
+
+		log.info("getAttachList " + bno);
+
+		return new ResponseEntity<>(service.getAttachList(bno), HttpStatus.OK);
 
 	}
 }

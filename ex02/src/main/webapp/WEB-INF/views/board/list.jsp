@@ -125,7 +125,7 @@
 							<td>
 								<c:out value="${board.bno}" />
 							</td>
-							<td>
+							<td>                                                               
 								<!-- 만약 새창을 통해 보고싶다면 target='_blank' 를 추가하면 된다-->
 								<%-- a 태그로 링크를 생성하여 이동하는 방법
 								<a href='/board/get?bno=<c:out value="${board.bno}"/>'> --%>
