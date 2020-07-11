@@ -1,5 +1,8 @@
 package org.zerock.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -31,93 +34,193 @@ public class BoardController {
 
 	private BoardService service;
 
-	/*
-	 * @GetMapping("/list") public void list(Model model) { log.info("list");
-	 * //list()는 나중에 게시물의 목록을 전달해야하므로 Model을 파마미터로 정하고, 이를 통해서 boardServiceImpl 객체의
-	 * //getList()결과를 담아 전달합니다(addAttribute) model.addAttribute("list",
-	 * service.getList()); }
-	 */
+	@GetMapping("/register")
+	public void register() {
+
+	}
+
+	// @GetMapping("/list")
+	// public void list(Model model) {
+	//
+	// log.info("list");
+	// model.addAttribute("list", service.getList());
+	//
+	// }
+
+	// @GetMapping("/list")
+	// public void list(Criteria cri, Model model) {
+	//
+	// log.info("list: " + cri);
+	// model.addAttribute("list", service.getList(cri));
+	//
+	// }
 
 	@GetMapping("/list")
 	public void list(Criteria cri, Model model) {
-		log.info("list:" + cri);
-		model.addAttribute("list", service.getList(cri));
 
-		// boardController에서 pageDTO를 사용할 수 있도록 Model에 담아서 화면에 전달, 임의의값 123 넣음
+		log.info("list: " + cri);
+		model.addAttribute("list", service.getList(cri));
 		// model.addAttribute("pageMaker", new PageDTO(cri, 123));
 
 		int total = service.getTotal(cri);
 
 		log.info("total: " + total);
+
 		model.addAttribute("pageMaker", new PageDTO(cri, total));
+
 	}
+
+	// @PostMapping("/register")
+	// public String register(BoardVO board, RedirectAttributes rttr) {
+	//
+	// log.info("register: " + board);
+	//
+	// service.register(board);
+	//
+	// rttr.addFlashAttribute("result", board.getBno());
+	//
+	// return "redirect:/board/list";
+	// }
 
 	@PostMapping("/register")
 	public String register(BoardVO board, RedirectAttributes rttr) {
+
+		log.info("==========================");
+
 		log.info("register: " + board);
 
 		if (board.getAttachList() != null) {
+
 			board.getAttachList().forEach(attach -> log.info(attach));
+
 		}
 
+		log.info("==========================");
+
 		service.register(board);
+
 		rttr.addFlashAttribute("result", board.getBno());
-		// redirect: 접두어를 사용하면 스프링 MVC가 내부적으로 response.sendRedirect()를 처리
-		// return "return:/board/list";
+
 		return "redirect:/board/list";
 	}
 
-	// getMapping이나 postMapping에서는 url을 배열로 처리할 수 있다.
-	// @ModelAttribute는 자동으로 Model에 데이터를 지정한 이름으로 담아줍니다. 사용하지 않아도 전달이 되지만 명확히 하게 위해서
-	// 사용
+	// @GetMapping({ "/get", "/modify" })
+	// public void get(@RequestParam("bno") Long bno, Model model) {
+	//
+	// log.info("/get or modify ");
+	// model.addAttribute("board", service.get(bno));
+	// }
+
 	@GetMapping({ "/get", "/modify" })
 	public void get(@RequestParam("bno") Long bno, @ModelAttribute("cri") Criteria cri, Model model) {
-		log.info("/get or /modify");
+
+		log.info("/get or modify");
 		model.addAttribute("board", service.get(bno));
 	}
 
+	// @PostMapping("/modify")
+	// public String modify(BoardVO board, RedirectAttributes rttr) {
+	// log.info("modify:" + board);
+	//
+	// if (service.modify(board)) {
+	// rttr.addFlashAttribute("result", "success");
+	// }
+	// return "redirect:/board/list";
+	// }
+
 	@PostMapping("/modify")
 	public String modify(BoardVO board, @ModelAttribute("cri") Criteria cri, RedirectAttributes rttr) {
-		log.info("modify: " + board);
+		log.info("modify:" + board);
 
 		if (service.modify(board)) {
-			// addFlashAttribute는 일회성
 			rttr.addFlashAttribute("result", "success");
 		}
 
-		/*
-		 * getListLink() 사용함으로써 밑에 것들 생략 가능 rttr.addAttribute("pageNum",
-		 * cri.getPageNum()); rttr.addAttribute("amount", cri.getAmount());
-		 * rttr.addAttribute("type", cri.getType()); rttr.addAttribute("keyword",
-		 * cri.getKeyword());
-		 * 
-		 * //redirect는 get방식으로 이루어짐 return "redirect:/board/list";
-		 */
+		rttr.addAttribute("pageNum", cri.getPageNum());
+		rttr.addAttribute("amount", cri.getAmount());
+		rttr.addAttribute("type", cri.getType());
+		rttr.addAttribute("keyword", cri.getKeyword());
 
-		return "redirect:/board/list" + cri.getListLink();
-
+		return "redirect:/board/list";
 	}
+
+	// @PostMapping("/remove")
+	// public String remove(@RequestParam("bno") Long bno, RedirectAttributes rttr)
+	// {
+	//
+	// log.info("remove..." + bno);
+	// if (service.remove(bno)) {
+	// rttr.addFlashAttribute("result", "success");
+	// }
+	// return "redirect:/board/list";
+	// }
+
+	// @PostMapping("/remove")
+	// public String remove(@RequestParam("bno") Long bno, Criteria cri,
+	// RedirectAttributes rttr) {
+	//
+	// log.info("remove..." + bno);
+	// if (service.remove(bno)) {
+	// rttr.addFlashAttribute("result", "success");
+	// }
+	// rttr.addAttribute("pageNum", cri.getPageNum());
+	// rttr.addAttribute("amount", cri.getAmount());
+	// rttr.addAttribute("type", cri.getType());
+	// rttr.addAttribute("keyword", cri.getKeyword());
+	//
+	// return "redirect:/board/list";
+	// }
 
 	@PostMapping("/remove")
-	public String remove(@RequestParam("bno") Long bno, @ModelAttribute("cri") Criteria cri, RedirectAttributes rttr) {
-		log.info("remove.................... " + bno);
+	public String remove(@RequestParam("bno") Long bno, Criteria cri, RedirectAttributes rttr) {
+
+		log.info("remove..." + bno);
+
+		List<BoardAttachVO> attachList = service.getAttachList(bno);
 
 		if (service.remove(bno)) {
+
+			// delete Attach Files
+			deleteFiles(attachList);
+
 			rttr.addFlashAttribute("result", "success");
 		}
-
-		/*
-		 * getListLink() 사용함으로써 밑에 것들 생략 가능 rttr.addAttribute("pageNum",
-		 * cri.getPageNum()); rttr.addAttribute("amount", cri.getAmount());
-		 * rttr.addAttribute("type", cri.getType()); rttr.addAttribute("keyword",
-		 * cri.getKeyword()); return "redirect:/board/list";
-		 */
-
 		return "redirect:/board/list" + cri.getListLink();
 	}
+	
+	private void deleteFiles(List<BoardAttachVO> attachList) {
+	    
+	    if(attachList == null || attachList.size() == 0) {
+	      return;
+	    }
+	    
+	    log.info("delete attach files...................");
+	    log.info(attachList);
+	    
+	    attachList.forEach(attach -> {
+	      try {        
+	        Path file  = Paths.get("C:\\upload\\"+attach.getUploadPath()+"\\" + attach.getUuid()+"_"+ attach.getFileName());
+	        
+	        Files.deleteIfExists(file);
+	        
+	        if(Files.probeContentType(file).startsWith("image")) {
+	        
+	          Path thumbNail = Paths.get("C:\\upload\\"+attach.getUploadPath()+"\\s_" + attach.getUuid()+"_"+ attach.getFileName());
+	          
+	          Files.delete(thumbNail);
+	        }
+	
+	      }catch(Exception e) {
+	        log.error("delete file error" + e.getMessage());
+	      }//end catch
+	    });//end foreachd
+	  }
 
-	@GetMapping(value = "/getAttachList", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody /* BoardController는 @RestController로 작성되지 않았기 때문에 직접  @ResponseBody를 적용해서 JSON 데이터를 반환하도록 처리*/
+	
+
+	@GetMapping(value = "/getAttachList",
+			    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
 	public ResponseEntity<List<BoardAttachVO>> getAttachList(Long bno) {
 
 		log.info("getAttachList " + bno);
@@ -125,4 +228,5 @@ public class BoardController {
 		return new ResponseEntity<>(service.getAttachList(bno), HttpStatus.OK);
 
 	}
+
 }
